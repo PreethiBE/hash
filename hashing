@@ -1,0 +1,141 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define SIZE 20
+
+struct DataItem {
+   int data;   
+   int key;
+};
+
+
+
+int hashCode(int key) {
+   return key % SIZE;
+}
+
+struct DataItem *search(struct DataItem* hashArray[], int key) {
+   //get the hash 
+   int hashIndex = hashCode(key);  
+	
+   //move in array until an empty 
+   while(hashArray[hashIndex] != NULL) {
+	
+      if(hashArray[hashIndex]->key == key)
+         return hashArray[hashIndex]; 
+			
+      //go to next cell
+      ++hashIndex;
+		
+      //wrap around the table
+      hashIndex %= SIZE;
+   }        
+	
+   return NULL;        
+}
+
+struct DataItem *insert(int key,int data) {
+
+   struct DataItem *item = (struct DataItem*) malloc(sizeof(struct DataItem));
+   item->data = data;  
+   item->key = key;
+   return item;
+}
+
+void delete(struct DataItem* hashArray[], struct DataItem* item) {
+   int key = item->key;
+
+   //get the hash 
+   int hashIndex = hashCode(key);
+
+   //move in array until an empty
+   while(hashArray[hashIndex] != NULL) {
+	
+      if(hashArray[hashIndex]->key == key) {
+         free(hashArray[hashIndex]);
+         hashArray[hashIndex] = NULL;
+         return;
+      }
+		
+      //go to next cell
+      ++hashIndex;
+		
+      //wrap around the table
+      hashIndex %= SIZE;
+   }      
+	
+   return;        
+}
+
+void display(struct DataItem *hashArray[]) {
+   int i = 0;
+	
+   for(i = 0; i<SIZE; i++) {
+	
+      if(hashArray[i] != NULL)
+         printf(" (%d,%d)",hashArray[i]->key,hashArray[i]->data);
+      else
+         printf(" ~~ ");
+   }
+	
+   printf("\n");
+}
+
+int main() {
+    struct DataItem* hashArray[SIZE];
+    struct DataItem* item;
+    int key = 0, ys = 1, data = 0;
+
+    while(ys)
+    {
+        printf("key value desired:");
+        scanf("%d", &key);
+        //get the hash 
+        int hashIndex = hashCode(key);
+
+       //move in array until an empty
+       while(hashArray[hashIndex] != NULL) {
+	      ++hashIndex;
+          hashIndex %= SIZE;
+        }
+        if(hashIndex < SIZE)
+        {
+            printf("enter the value for key: %d", key);
+            scanf("%d", &data);
+            hashArray[hashIndex] = insert(key, data);
+            display(hashArray);
+            printf("Do you want to continue? ");
+            scanf("%d", &ys);
+        }
+        else if (hashIndex >= SIZE)
+        {
+           printf("Cannot enter new item");
+        }            
+    }
+
+   item = search(hashArray, 37);
+
+   if(item != NULL) {
+      printf("Element found: %d\n", item->data);
+   } else {
+      printf("Element not found\n");
+   }
+
+   delete(hashArray, item);
+   item = search(hashArray, 37);
+   display(hashArray);
+   
+   item = search(hashArray, 42);
+   delete(hashArray, item);
+   item = search(hashArray, 42);
+   display(hashArray);
+   
+
+   if(item != NULL) {
+      printf("Element found: %d\n", item->data);
+   } else {
+      printf("Element not found\n");
+   }
+}
